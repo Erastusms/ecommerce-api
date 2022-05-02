@@ -3,6 +3,14 @@ const authRoute = (handler) => [
     method: 'POST',
     path: '/register',
     handler: handler.registerUserHandler,
+    options: {
+      payload: {
+        allow: 'multipart/form-data',
+        multipart: true,
+        output: 'stream',
+        maxBytes: 512000,
+      },
+    },
   },
   {
     method: 'POST',

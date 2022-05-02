@@ -52,7 +52,7 @@ const init = async () => {
     {
       plugin: authUser,
       options: {
-        authService,
+        service: authService,
         tokenManager: TokenManager,
         validator: AuthenticationsValidator,
       },

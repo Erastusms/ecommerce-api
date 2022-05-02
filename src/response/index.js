@@ -1,5 +1,5 @@
 module.exports = {
-  successResponse(data, responseMessage) {
+  successResponse(responseMessage, data = undefined) {
     return {
       status: 'success',
       message: responseMessage,

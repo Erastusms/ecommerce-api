@@ -9,16 +9,55 @@ exports.up = (pgm) => {
       unique: true,
       notNull: true,
     },
+    email: {
+      type: 'VARCHAR(255)',
+      notNull: true,
+    },
     password: {
-      type: 'TEXT',
+      type: 'VARCHAR(255)',
       notNull: true,
     },
     fullname: {
-      type: 'TEXT',
+      type: 'VARCHAR(255)',
+      notNull: true,
+    },
+    phone_number: {
+      type: 'VARCHAR(255)',
+      notNull: true,
+    },
+    address: {
+      type: 'VARCHAR(255)',
+      notNull: true,
+    },
+    postal_code: {
+      type: 'VARCHAR(255)',
+      notNull: true,
+    },
+    country: {
+      type: 'VARCHAR(255)',
+      notNull: true,
+    },
+    saldo: {
+      type: 'VARCHAR(255)',
+      notNull: true,
+    },
+    birthdate: {
+      type: 'VARCHAR(255)',
+      notNull: true,
+    },
+    gender: {
+      type: 'VARCHAR(255)',
+      notNull: true,
+    },
+    avatar_url: {
+      type: 'VARCHAR(255)',
       notNull: true,
     },
     token: {
-      type: 'TEXT',
+      type: 'VARCHAR(255)',
+    },
+    last_login: {
+      type: 'timestamp',
     },
     created_at: {
       type: 'timestamp',

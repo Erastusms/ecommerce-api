@@ -7,20 +7,24 @@ const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthenticationError = require('../../exceptions/AuthenticationError');
 
+const DBHelpers = require('../../helpers/DBHelpers');
+
 class AuthService {
   constructor() {
     this._pool = new Pool();
   }
 
   async registerUser(payload) {
-    const { username, password, fullname } = payload;
-    await this.verifyUsername(username);
-
-    const id = `user-${nanoid(12)}`;
+    const { fileLocation, username, email, password, fullname,
+      phoneNumber, address, postalCode, country, birthdate, gender
+    } = payload;
+    
+    const userId = `user-${nanoid(12)}`;
     const hashedPassword = await bcrypt.hash(password, 10);
     const query = {
-      text: 'INSERT INTO users VALUES($1, $2, $3, $4) RETURNING id',
-      values: [id, username, hashedPassword, fullname],
+      text: `INSERT INTO users VALUES(${DBHelpers.getValues(13)}) RETURNING id`,
+      values: [userId, username, email, hashedPassword, fullname, phoneNumber,
+        address, postalCode, country, 0, birthdate, gender, fileLocation],
     };
 
     const result = await this._pool.query(query);
@@ -31,21 +35,32 @@ class AuthService {
 
   async verifyUsername(username) {
     const query = {
-      text: 'SELECT username FROM users WHERE username = $1',
+      text: 'SELECT * FROM users WHERE username = $1',
       values: [username],
     };
 
     const result = await this._pool.query(query);
+    if (result.rows.length > 0) {
+      throw new InvariantError('Gagal menambahkan user. Username sudah digunakan.');
+    }
+  }
 
-    if (result.rows.length > 0) { 
-      throw new InvariantError('Gagal menambahkan user. Username sudah digunakan.'); 
+  async verifyEmail(email) {
+    const query = {
+      text: 'SELECT * FROM users WHERE email = $1',
+      values: [email],
+    };
+
+    const result = await this._pool.query(query);
+    if (result.rows.length > 0) {
+      throw new InvariantError('Gagal menambahkan user. Email sudah digunakan.');
     }
   }
 
   async verifyUserCredential(payload) {
     const { username, password } = payload;
     const query = {
-      text: 'SELECT * FROM users WHERE username = $1',
+      text: 'SELECT * FROM users WHERE username = $1 OR email = $1',
       values: [username],
     };
 
@@ -62,7 +77,7 @@ class AuthService {
 
   async updateRefreshToken(token, userId) {
     const query = {
-      text: 'UPDATE users SET token = $1, updated_at = now() WHERE id = $2',
+      text: 'UPDATE users SET token = $1, last_login = now(), updated_at = now() WHERE id = $2',
       values: [token, userId],
     };
 
@@ -79,17 +94,17 @@ class AuthService {
     if (isEmpty(result.rows)) throw new InvariantError('Refresh token tidak valid');
   }
 
-  async getUserById(userId) {
-    const query = {
-      text: 'SELECT id, username, fullname FROM users WHERE id = $1',
-      values: [userId],
-    };
+  // async getUserById(userId) {
+  //   const query = {
+  //     text: 'SELECT id, username, fullname FROM users WHERE id = $1',
+  //     values: [userId],
+  //   };
 
-    const result = await this._pool.query(query);
-    if (isEmpty(result.rows)) throw new NotFoundError('User');
+  //   const result = await this._pool.query(query);
+  //   if (isEmpty(result.rows)) throw new NotFoundError('User');
 
-    return result.rows[0];
-  }
+  //   return result.rows[0];
+  // }
 }
 
 module.exports = AuthService;
