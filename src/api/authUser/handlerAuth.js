@@ -46,7 +46,7 @@ class AuthHandler {
     const accessToken = this._tokenManager.generateAccessToken({ id });
     const refreshToken = this._tokenManager.generateRefreshToken({ id });
 
-    await this._service.updateRefreshToken(refreshToken, id);
+    await this._service.updateRefreshToken(accessToken, id);
 
     const tokenData = { accessToken, refreshToken };
     const responseResult = reply.response(successResponse('Success Login', tokenData));

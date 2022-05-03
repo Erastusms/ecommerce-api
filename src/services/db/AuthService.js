@@ -94,6 +94,18 @@ class AuthService {
     if (isEmpty(result.rows)) throw new InvariantError('Refresh token tidak valid');
   }
 
+  async verifyToken(payload) {
+    const { id, token } = payload;
+    const query = {
+      text: 'SELECT token FROM users WHERE id = $1 AND token = $2',
+      values: [id, token],
+    };
+
+    const result = await this._pool.query(query);
+    if (isEmpty(result.rows)) throw new InvariantError('Please login first');
+    return true;
+  }
+
   // async getUserById(userId) {
   //   const query = {
   //     text: 'SELECT id, username, fullname FROM users WHERE id = $1',

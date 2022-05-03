@@ -18,7 +18,7 @@ module.exports = {
 
       if (response.statusCode) finalResponse.code(response.statusCode);
       else finalResponse.code(response.output.payload.statusCode);
-
+      console.error(response);
       return finalResponse;
     }
 

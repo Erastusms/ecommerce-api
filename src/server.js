@@ -11,8 +11,13 @@ const AuthService = require('./services/db/AuthService');
 const TokenManager = require('./tokenize/TokenManager');
 const AuthenticationsValidator = require('./validator/AuthUser');
 
+const profileUser = require('./api/profileUser');
+const ProfileService = require('./services/db/ProfileService');
+const ProfileValidator = require('./validator/ProfileUser');
+
 const init = async () => {
   const authService = new AuthService();
+  const profileService = new ProfileService();
   const server = Hapi.server({
     port: process.env.PORT || 3000,
     host: process.env.HOST || 'localhost',
@@ -43,7 +48,8 @@ const init = async () => {
     validate: (artifacts) => ({
       isValid: true,
       credentials: {
-        id: artifacts.decoded.payload.id
+        id: artifacts.decoded.payload.id,
+        token: artifacts.token
       },
     }),
   });
@@ -55,6 +61,14 @@ const init = async () => {
         service: authService,
         tokenManager: TokenManager,
         validator: AuthenticationsValidator,
+      },
+    },
+    {
+      plugin: profileUser,
+      options: {
+        service: profileService,
+        authService,
+        validator: ProfileValidator,
       },
     },
   ]);

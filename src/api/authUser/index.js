@@ -2,7 +2,7 @@ const AuthHandler = require('./handlerAuth');
 const authRoute = require('./routeAuth');
 
 module.exports = {
-  name: 'authentications',
+  name: 'authUser',
   version: '1.0.0',
   register: async (server, { service, tokenManager, validator }) => {
     const authUserHandler = new AuthHandler(service, tokenManager, validator);

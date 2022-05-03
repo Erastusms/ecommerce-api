@@ -1,6 +1,6 @@
 module.exports = {
   ACTION: {
-    ADD: 'add',
+    UPDATE: 'update',
     DELETE: 'delete'
   },
   MIN_YEAR: 1900,
