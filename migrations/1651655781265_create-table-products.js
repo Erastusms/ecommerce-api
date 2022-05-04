@@ -1,64 +1,45 @@
 exports.up = (pgm) => {
-  pgm.createTable('users', {
+  pgm.createTable('products', {
     id: {
       type: 'VARCHAR(50)',
       primaryKey: true,
       notNull: true,
     },
-    username: {
-      type: 'VARCHAR(50)',
-      unique: true,
-      notNull: true,
-    },
-    email: {
+    name: {
       type: 'VARCHAR(255)',
       notNull: true,
     },
-    password: {
+    rating: {
+      type: 'INT',
+      notNull: true,
+    },
+    description: {
       type: 'VARCHAR(255)',
       notNull: true,
     },
-    fullname: {
+    image: {
       type: 'VARCHAR(255)',
       notNull: true,
     },
-    phone_number: {
-      type: 'VARCHAR(255)',
+    quantity: {
+      type: 'INT',
       notNull: true,
     },
-    address: {
-      type: 'VARCHAR(255)',
+    price: {
+      type: 'INT',
       notNull: true,
     },
-    postal_code: {
-      type: 'VARCHAR(255)',
+    discount: {
+      type: 'INT',
       notNull: true,
     },
-    country: {
-      type: 'VARCHAR(255)',
+    tax: {
+      type: 'INT',
       notNull: true,
     },
-    saldo: {
+    user_id: {
       type: 'VARCHAR(255)',
       notNull: true,
-    },
-    birthdate: {
-      type: 'VARCHAR(255)',
-      notNull: true,
-    },
-    gender: {
-      type: 'VARCHAR(255)',
-      notNull: true,
-    },
-    avatar_url: {
-      type: 'VARCHAR(255)',
-      notNull: true,
-    },
-    token: {
-      type: 'VARCHAR(255)',
-    },
-    last_login: {
-      type: 'timestamp',
     },
     created_at: {
       type: 'timestamp',
@@ -69,8 +50,13 @@ exports.up = (pgm) => {
       default: pgm.func('current_timestamp'),
     },
   });
+  pgm.addConstraint(
+    'products',
+    'fk_products.user_id_users.id',
+    'FOREIGN KEY("user_id") REFERENCES users(id) ON DELETE CASCADE',
+  );
 };
-  
+
 exports.down = (pgm) => {
   pgm.dropTable('users');
 };

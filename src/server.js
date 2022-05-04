@@ -15,9 +15,14 @@ const profileUser = require('./api/profileUser');
 const ProfileService = require('./services/db/ProfileService');
 const ProfileValidator = require('./validator/ProfileUser');
 
+const product = require('./api/product');
+const ProductService = require('./services/db/ProductService');
+const ProductValidator = require('./validator/Product');
+
 const init = async () => {
   const authService = new AuthService();
   const profileService = new ProfileService();
+  const productService = new ProductService();
   const server = Hapi.server({
     port: process.env.PORT || 3000,
     host: process.env.HOST || 'localhost',
@@ -69,6 +74,13 @@ const init = async () => {
         service: profileService,
         authService,
         validator: ProfileValidator,
+      },
+    },
+    {
+      plugin: product,
+      options: {
+        service: productService,
+        validator: ProductValidator,
       },
     },
   ]);

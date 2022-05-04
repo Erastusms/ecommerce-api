@@ -16,10 +16,19 @@ module.exports = {
   },
 
   writeFile(payloadFile) {
-    const { file, meta, folderDir, fileType } = payloadFile;
+    const { userId, file, meta, folderDir, fileType } = payloadFile;
     const filename = `${fileType}-${new Date().getTime()}-${meta.filename}`;
     const folderUpload = path.resolve(__dirname, folderDir);
-    const pathUploaded = `${folderUpload}/${filename}`;
+    let pathUploaded = `${folderUpload}/${filename}`;
+
+    if (userId) {
+      const newDir = `${folderUpload}/${userId}`;
+      if (!fs.existsSync(newDir)) {
+        fs.mkdirSync(newDir, { recursive: true });
+      }
+      pathUploaded = `${newDir}/${filename}`;
+    }
+
     const fileStream = fs.createWriteStream(pathUploaded);
 
     return new Promise((resolve, reject) => {

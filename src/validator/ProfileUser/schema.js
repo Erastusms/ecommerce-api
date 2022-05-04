@@ -17,12 +17,7 @@ const ChangeAvatarSchema = Joi.object({
   avatarUrl: Joi.any().optional()
 });
 
-const EditLoginSchema = Joi.object({
-  refreshToken: Joi.string().required(),
-});
-
 module.exports = {
-  EditLoginSchema,
   EditProfileSchema,
   ChangeAvatarSchema,
 };

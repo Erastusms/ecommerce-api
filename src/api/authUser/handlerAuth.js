@@ -18,8 +18,8 @@ class AuthHandler {
     this._validator.validateRegisterPayload(request.payload);
     const { avatarUrl, username, email, ...payload } = request.payload;
 
-    await this.verifyUsername(username);
-    await this.verifyEmail(email);
+    await this._service.verifyUsername(username);
+    await this._service.verifyEmail(email);
 
     let fileLocation = `${FILE_URL.avatar}/avatar-anonymous.png`;
     if (avatarUrl) {
