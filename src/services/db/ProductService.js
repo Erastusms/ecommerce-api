@@ -3,6 +3,8 @@ const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const { isEmpty } = require('lodash');
 const InvariantError = require('../../exceptions/InvariantError');
+const NotFoundError = require('../../exceptions/NotFoundError');
+const AuthorizationError = require('../../exceptions/AuthorizationError');
 const { keyObjectSubtitution } = require('../../helpers/ResponseHelpers');
 
 const DBHelpers = require('../../helpers/DBHelpers');
@@ -37,52 +39,62 @@ class ProfileService {
     };
 
     const result = await this._pool.query(query);
-    if (!result.rows.length) throw new InvariantError('Product gagal ditampilkan');
+    if (!result.rows.length) throw new NotFoundError('Product');
     const productMaps = result.rows.map((products) => keyObjectSubtitution(products));
     return productMaps;
   }
 
-  async showDetail(productId) {
+  async getProduct(productId) {
     const query = {
       text: 'SELECT * FROM products WHERE id = $1',
       values: [productId],
     };
 
     const result = await this._pool.query(query);
-    if (!result.rows.length) throw new InvariantError('Product gagal ditampilkan');
+    if (!result.rows.length) throw new NotFoundError('Product');
     return keyObjectSubtitution(result.rows[0]);
   }
 
-  async editProfile(payload) {
-    const { id, email, fullname, phoneNumber,
-      address, postalCode, country, birthdate, gender
+  async editProduct(payload) {
+    const {
+      fileLocation, productId, name, description, quantity, price, discount
     } = payload;
-
+    const tax = 10 * price / 100;
+    const fixPrice = price - discount;
     const query = {
       text: `
-              UPDATE users SET email = $1, fullname = $2, phone_number = $3, address = $4,
-              postal_code = $5, country = $6, birthdate = $7, gender = $8, updated_at = now()
-              WHERE id = $9 RETURNING id
-            `,
-      values: [email, fullname, phoneNumber, address,
-        postalCode, country, birthdate, gender, id],
+             UPDATE products SET image = $1, name = $2, description = $3, quantity = $4,
+             price = $5, discount = $6, tax = $7, updated_at = now() WHERE id = $8
+             RETURNING id`,
+      values: [fileLocation, name, description, quantity, fixPrice, discount, tax, productId],
     };
 
     const result = await this._pool.query(query);
-    if (isEmpty(result.rows)) throw new InvariantError('User gagal diupdate');
+    if (!result.rows.length) throw new InvariantError('Product gagal diperbarui');
 
+    return result.rows[0].id;
+  }
+
+  async verifyProduct(payload) {
+    const { userId, productId } = payload;
+    const query = {
+      text: 'SELECT * FROM products WHERE user_id = $1 AND id = $2',
+      values: [userId, productId],
+    };
+
+    const result = await this._pool.query(query);
+    if (isEmpty(result.rows)) throw new AuthorizationError('Product');
     return true;
   }
 
-  async getOldAvatar(userId) {
-    const queryParams = {
-      text: 'SELECT avatar_url FROM users WHERE id = $1',
-      values: [userId],
+  async deleteProduct(productId) {
+    const query = {
+      text: 'DELETE FROM products WHERE id = $1',
+      values: [productId],
     };
 
-    const result = await this._pool.query(queryParams);
-    if (isEmpty(result.rows)) return false;
-    return result.rows[0].avatar_url;
+    await this._pool.query(query);
+    return true;
   }
 }
 
