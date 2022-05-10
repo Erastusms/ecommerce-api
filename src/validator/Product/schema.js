@@ -9,6 +9,13 @@ const productSchema = Joi.object({
   discount: Joi.number().integer().optional()
 });
 
+const commentsSchema = Joi.object({
+  comment: Joi.string().required(),
+  image: Joi.any().optional(),
+  rating: Joi.number().integer().required()
+});
+
 module.exports = {
-  productSchema
+  productSchema,
+  commentsSchema
 };

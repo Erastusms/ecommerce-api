@@ -12,11 +12,13 @@ module.exports = {
   },
   FILE_URL: {
     avatar: `http://${process.env.HOST}:${process.env.PORT}/assets/profilePicture`,
-    productImage: `http://${process.env.HOST}:${process.env.PORT}/assets/productImage`
+    productImage: `http://${process.env.HOST}:${process.env.PORT}/assets/productImage`,
+    productComments: `http://${process.env.HOST}:${process.env.PORT}/assets/productComments`,
   },
   FILE_DIR: {
     avatar: '../../assets/profilePicture',
     productImage: '../../assets/productImage',
+    productComments: '../../assets/productComments'
   },
   arrFileExt: ['image/apng', 'image/avif', 'image/gif', 'image/jpeg', 'image/png', 'image/webp'],
   getConstAdd: (key) => `${key} berhasil ditambahkan`,

@@ -96,6 +96,52 @@ class ProfileService {
     await this._pool.query(query);
     return true;
   }
+
+  async addComments(payload) {
+    const { userId, productId, fileLocation, comment, rating } = payload;
+    const commentId = `comment-${nanoid(6)}`;
+    const query = {
+      text: `INSERT INTO products_comments VALUES(${DBHelpers.getValues(6)}) RETURNING id`,
+      values: [commentId, comment, rating, fileLocation, userId, productId],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rows.length) throw new InvariantError('Product gagal ditambahkan');
+
+    return result.rows[0].id;
+  }
+
+  async verifyComment(userId) {
+    const query = {
+      text: 'SELECT * FROM products_comments WHERE user_id = $1',
+      values: [userId],
+    };
+
+    const result = await this._pool.query(query);
+    if (isEmpty(result.rows)) throw new AuthorizationError('Comment');
+    return true;
+  }
+
+  async getComment(commentId) {
+    const query = {
+      text: 'SELECT * FROM products_comments WHERE id = $1',
+      values: [commentId],
+    };
+
+    const result = await this._pool.query(query);
+    if (isEmpty(result.rows)) throw new NotFoundError('Comment');
+    return result.rows[0];
+  }
+
+  async deleteComment(commentId) {
+    const query = {
+      text: 'DELETE FROM products_comments WHERE id = $1',
+      values: [commentId],
+    };
+
+    await this._pool.query(query);
+    return true;
+  }
 }
 
 module.exports = ProfileService;

@@ -45,6 +45,28 @@ const routeProduct = (handler) => [
       auth: process.env.STRATEGY_NAME
     },
   },
+  {
+    method: 'POST',
+    path: '/product/comments/{productId}',
+    handler: handler.addCommentProductHandler,
+    options: {
+      auth: process.env.STRATEGY_NAME,
+      payload: {
+        allow: 'multipart/form-data',
+        multipart: true,
+        output: 'stream',
+        maxBytes: 512000,
+      },
+    },
+  },
+  {
+    method: 'DELETE',
+    path: '/product/comments/{commentId}',
+    handler: handler.deleteCommentHandler,
+    options: {
+      auth: process.env.STRATEGY_NAME
+    },
+  },
 ];
 
 module.exports = routeProduct;
