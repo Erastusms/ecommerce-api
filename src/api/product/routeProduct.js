@@ -24,6 +24,11 @@ const routeProduct = (handler) => [
     handler: handler.detailProductHandler
   },
   {
+    method: 'GET',
+    path: '/categories/{kategoriId}',
+    handler: handler.getProductByCategoriesHandler
+  },
+  {
     method: 'PUT',
     path: '/product/{productId}',
     handler: handler.editProductHandler,

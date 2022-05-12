@@ -1,3 +1,4 @@
+/* eslint-disable no-return-assign */
 /* eslint-disable no-mixed-operators */
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
@@ -15,15 +16,17 @@ class ProfileService {
   }
 
   async addProduct(payload) {
-    const { userId, fileLocation, name, description, quantity, price, discount = 0 } = payload;
+    const { 
+      userId, fileLocation, name, description, quantity, price, discount = 0, kategoriId
+    } = payload;
     const productId = `item-${nanoid(12)}`;
     const rating = 0;
     const tax = 10 * price / 100;
     const fixPrice = price - discount;
     const query = {
-      text: `INSERT INTO products VALUES(${DBHelpers.getValues(10)}) RETURNING id`,
+      text: `INSERT INTO products VALUES(${DBHelpers.getValues(11)}) RETURNING id`,
       values: [productId, name, rating, description, fileLocation,
-        quantity, fixPrice, discount, tax, userId],
+        quantity, fixPrice, discount, tax, userId, kategoriId],
     };
 
     const result = await this._pool.query(query);
@@ -44,35 +47,60 @@ class ProfileService {
     return productMaps;
   }
 
-  async getProduct(productId) {
+  async getProductDetail(productId) {
     const query = {
       text: 'SELECT * FROM products WHERE id = $1',
       values: [productId],
     };
-
     const result = await this._pool.query(query);
     if (!result.rows.length) throw new NotFoundError('Product');
     return keyObjectSubtitution(result.rows[0]);
   }
 
+  async getProductByCategories(kategoriId) {
+    const query = {
+      text: 'SELECT * FROM products WHERE kategori_id = $1',
+      values: [kategoriId],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rows.length) throw new NotFoundError('Categories Product');
+    return result.rows.map((categories) => keyObjectSubtitution(categories));
+  }
+
   async editProduct(payload) {
     const {
-      fileLocation, productId, name, description, quantity, price, discount
+      fileLocation, productId, name, description, quantity, price, discount, kategoriId
     } = payload;
     const tax = 10 * price / 100;
     const fixPrice = price - discount;
     const query = {
       text: `
              UPDATE products SET image = $1, name = $2, description = $3, quantity = $4,
-             price = $5, discount = $6, tax = $7, updated_at = now() WHERE id = $8
-             RETURNING id`,
-      values: [fileLocation, name, description, quantity, fixPrice, discount, tax, productId],
+             price = $5, discount = $6, tax = $7, kategori_id = $8, updated_at = now()
+             WHERE id = $9 RETURNING id`,
+      values: [fileLocation, name, description, quantity,
+        fixPrice, discount, tax, kategoriId, productId],
     };
 
     const result = await this._pool.query(query);
     if (!result.rows.length) throw new InvariantError('Product gagal diperbarui');
 
     return result.rows[0].id;
+  }
+
+  async updateRatingProduct(commentDetail, productId) {
+    let allRating = 0;
+    commentDetail.map((comments) => allRating += comments.rating);
+    const fixRating = allRating / commentDetail.length;
+    const query = {
+      text: `UPDATE products SET rating = $1, updated_at = now()
+             WHERE id = $2 RETURNING id`,
+      values: [fixRating, productId],
+    };
+
+    await this._pool.query(query);
+    return true;
   }
 
   async verifyProduct(payload) {
@@ -122,15 +150,27 @@ class ProfileService {
     return true;
   }
 
-  async getComment(commentId) {
+  async getComment(productId) {
     const query = {
       text: 'SELECT * FROM products_comments WHERE id = $1',
-      values: [commentId],
+      values: [productId],
     };
 
     const result = await this._pool.query(query);
     if (isEmpty(result.rows)) throw new NotFoundError('Comment');
     return result.rows[0];
+  }
+
+  async getCommentByProductId(commentId) {
+    const query = {
+      text: `SELECT u.username, u.avatar_url, pc.comment, pc.rating, pc.image
+      FROM products_comments AS pc JOIN users AS u ON pc.user_id = u.id 
+      WHERE product_id = $1`,
+      values: [commentId],
+    };
+
+    const result = await this._pool.query(query);
+    return result.rows.map((comments) => keyObjectSubtitution(comments));
   }
 
   async deleteComment(commentId) {

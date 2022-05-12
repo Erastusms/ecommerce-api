@@ -10,7 +10,7 @@ exports.up = (pgm) => {
       notNull: true,
     },
     rating: {
-      type: 'INT',
+      type: 'NUMERIC',
       notNull: true,
     },
     description: {
@@ -41,6 +41,10 @@ exports.up = (pgm) => {
       type: 'VARCHAR(255)',
       notNull: true,
     },
+    kategori_id: {
+      type: 'INT',
+      notNull: true,
+    },
     created_at: {
       type: 'timestamp',
       default: pgm.func('current_timestamp'),
@@ -55,8 +59,13 @@ exports.up = (pgm) => {
     'fk_products.user_id_users.id',
     'FOREIGN KEY("user_id") REFERENCES users(id) ON DELETE CASCADE',
   );
+  pgm.addConstraint(
+    'products',
+    'fk_products.kategori_id_categories.id',
+    'FOREIGN KEY("kategori_id") REFERENCES categories(id) ON DELETE CASCADE',
+  );
 };
 
 exports.down = (pgm) => {
-  pgm.dropTable('users');
+  pgm.dropTable('products');
 };

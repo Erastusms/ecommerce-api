@@ -14,6 +14,7 @@ class HandlerProduct {
     this.detailProductHandler = this.detailProductHandler.bind(this);
     this.editProductHandler = this.editProductHandler.bind(this);
     this.deleteProductHandler = this.deleteProductHandler.bind(this);
+    this.getProductByCategoriesHandler = this.getProductByCategoriesHandler.bind(this);
 
     this.addCommentProductHandler = this.addCommentProductHandler.bind(this);
     this.deleteCommentHandler = this.deleteCommentHandler.bind(this);
@@ -45,10 +46,21 @@ class HandlerProduct {
     return reply.response(successResponse('Show Detail Product', data));
   }
 
+  async getProductByCategoriesHandler(request, reply) {
+    const { kategoriId } = request.params;
+    const data = await this._service.getProductByCategories(kategoriId);
+    return reply.response(successResponse('Show Product By Categories', data));
+  }
+
   async detailProductHandler(request, reply) {
     const { productId } = request.params;
-    const data = await this._service.getProduct(productId);
-    return reply.response(successResponse('Show Detail Product', data));
+    const data = await this._service.getProductDetail(productId);
+    const comments = await this._service.getCommentByProductId(productId);
+    const response = {
+      ...data,
+      comments
+    };
+    return reply.response(successResponse('Show Detail Product', response));
   }
 
   async editProductHandler(request, reply) {
@@ -112,6 +124,11 @@ class HandlerProduct {
     };
 
     const commentId = await this._service.addComments(payloadComments);
+    // const commentId = '4';
+    const productDetail = await this._service.getCommentByProductId(productId);
+    // const commentLength = productDetail.comment.length;
+    await this._service.updateRatingProduct(productDetail, productId);
+    await this._service.updateRatingProduct(productDetail);
     return reply.response(successResponse(getConstAdd('Comment'), { commentId }));
   }
 

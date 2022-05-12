@@ -6,7 +6,8 @@ const productSchema = Joi.object({
   image: Joi.any().required(),
   quantity: Joi.number().integer().required(),
   price: Joi.number().integer().required(),
-  discount: Joi.number().integer().optional()
+  discount: Joi.number().integer().optional(),
+  kategoriId: Joi.number().integer().required()
 });
 
 const commentsSchema = Joi.object({
